@@ -24,6 +24,7 @@ export interface McpServerOptions {
   userAccessToken?: string | larkmcp.SettableValue;
   oauth?: boolean;
   scope?: string[];
+  headers?: Record<string, string>;
 
   mode?: McpServerTransport;
   host?: string;

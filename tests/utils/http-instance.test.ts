@@ -65,4 +65,49 @@ describe('http-instance', () => {
 
     expect(result).toBe(mockResponse.data);
   });
+
+  it('should apply custom headers via setCustomHeaders', () => {
+    const { setCustomHeaders } = require('../../src/utils/http-instance');
+    setCustomHeaders({ 'X-Custom': 'test-value', 'X-Another': 'another-value' });
+
+    const mockRequest = { headers: {} as Record<string, string> };
+    const interceptor = (axios as any).mockRequestInterceptor;
+    const result = interceptor(mockRequest);
+
+    expect(result.headers['User-Agent']).toBe(USER_AGENT);
+    expect(result.headers['X-Custom']).toBe('test-value');
+    expect(result.headers['X-Another']).toBe('another-value');
+
+    // Clean up
+    setCustomHeaders({});
+  });
+
+  it('should override User-Agent when set via custom headers', () => {
+    const { setCustomHeaders } = require('../../src/utils/http-instance');
+    setCustomHeaders({ 'User-Agent': 'CustomAgent/1.0' });
+
+    const mockRequest = { headers: {} as Record<string, string> };
+    const interceptor = (axios as any).mockRequestInterceptor;
+    const result = interceptor(mockRequest);
+
+    // Custom headers are applied after default User-Agent, so they override it
+    expect(result.headers['User-Agent']).toBe('CustomAgent/1.0');
+
+    // Clean up
+    setCustomHeaders({});
+  });
+
+  it('should not apply custom headers when request has no headers property', () => {
+    const { setCustomHeaders } = require('../../src/utils/http-instance');
+    setCustomHeaders({ 'X-Custom': 'test-value' });
+
+    const mockRequest = {} as any;
+    const interceptor = (axios as any).mockRequestInterceptor;
+    const result = interceptor(mockRequest);
+
+    expect(result).not.toHaveProperty('headers');
+
+    // Clean up
+    setCustomHeaders({});
+  });
 });

@@ -8,6 +8,7 @@ import { initMcpServerWithTransport } from './mcp-server';
 import { NODE_VERSION_MAJOR, OAPI_MCP_DEFAULT_ARGS, OAPI_MCP_ENV_ARGS } from './utils/constants';
 import { LoginHandler } from './cli/login-handler';
 import { parseStringArray } from './utils/parser-string-array';
+import { parseHeaders } from './utils/parse-headers';
 import { LogLevel, logger } from './utils/logger';
 
 dotenv.config();
@@ -95,6 +96,15 @@ program
   .option('--host <host>', '(Optional) Host to listen (default: "localhost")')
   .option('-p, --port <port>', '(Optional) Port to listen (default: "3000")')
   .option('--config <configPath>', '(Optional) Config file path (JSON)')
+  .option(
+    '-H, --header <header>',
+    '(Optional) Custom HTTP header in "Key: Value" format, can be used multiple times',
+    (val: string, prev: string[]) => {
+      prev.push(val);
+      return prev;
+    },
+    [] as string[],
+  )
   .option('--debug', '(Optional) Enable debug mode')
   .action(async (options) => {
     let fileOptions = {};
@@ -125,6 +135,11 @@ program
       ...mergedOptions,
       scope: parseStringArray(mergedOptions.scope),
       tools: parseStringArray(mergedOptions.tools),
+      headers: {
+        ...parseHeaders(OAPI_MCP_ENV_ARGS.headers),
+        ...parseHeaders((fileOptions as any).headers),
+        ...parseHeaders(options.header),
+      },
     });
   });
 

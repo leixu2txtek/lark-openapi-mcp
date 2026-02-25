@@ -4,16 +4,20 @@ import { initStdioServer, initSSEServer, initStreamableServer } from '../transpo
 import { McpServerOptions, McpServerType } from './types';
 import { noop } from '../../utils/noop';
 import { currentVersion } from '../../utils/version';
-import { oapiHttpInstance } from '../../utils/http-instance';
+import { oapiHttpInstance, setCustomHeaders } from '../../utils/http-instance';
 import { LarkAuthHandler } from '../../auth';
 import { logger } from '../../utils/logger';
 
 export function initOAPIMcpServer(options: McpServerOptions, authHandler?: LarkAuthHandler) {
-  const { appId, appSecret, userAccessToken, tokenMode, domain, oauth } = options;
+  const { appId, appSecret, userAccessToken, tokenMode, domain, oauth, headers } = options;
 
   if (!appId || !appSecret) {
     console.error('Error: Missing App Credentials');
     throw new Error('Missing App Credentials');
+  }
+
+  if (headers && Object.keys(headers).length > 0) {
+    setCustomHeaders(headers);
   }
 
   let allowTools = options.tools || [];

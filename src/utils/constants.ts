@@ -26,6 +26,7 @@ export const OAPI_MCP_ENV_ARGS = cleanEnvArgs({
   tokenMode: process.env.LARK_TOKEN_MODE,
   tools: process.env.LARK_TOOLS,
   domain: process.env.LARK_DOMAIN,
+  headers: process.env.LARK_HEADERS,
 });
 
 export enum OAPI_MCP_ERROR_CODE {
